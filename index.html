@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Procedure Lab — Pembelajaran Interaktif</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body, button, input, select, textarea { font-family: "DM Sans", sans-serif; }
+    body { margin: 0; min-height: 100vh; background: #dff5ff; color: #17354b; }
+    button, input, select, textarea { font-size: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid #168cba; outline-offset: 3px; }
+    button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: not-allowed; opacity: .65; }
+    h1, h2, h3, p { margin-top: 0; }
+    p { line-height: 1.55; }
+    .home, .student-page { min-height: 100vh; padding: 36px 18px 64px; }
+    .home { display: grid; place-items: center; text-align: center; }
+    .home-card, .student-card { background: #fff; border: 2px solid #c9e8f4; border-radius: 30px; box-shadow: 0 20px 50px rgba(37,108,147,.14); }
+    .home-card { width: min(100%, 720px); padding: clamp(28px, 6vw, 64px); }
+    .eyebrow { color: #26739b; font-size: .85rem; letter-spacing: .15em; text-transform: uppercase; font-weight: 800; }
+    .home h1 { font-size: clamp(2.4rem, 7vw, 4rem); line-height: 1.1; letter-spacing: -.04em; }
+    .home-intro { color: #526d7d; font-size: 1.15rem; }
+    .role-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 32px; }
+    .role-button { border: 2px solid #b9dfef; border-radius: 20px; background: #f0faff; padding: 25px 16px; text-align: left; color: #17354b; font-weight: 800; font-size: 1.25rem; min-height: 155px; }
+    .role-button:hover { background: #fff1b9; border-color: #edbc32; }
+    .role-button span { display: block; font-size: 2rem; margin-bottom: 10px; }
+    .role-button small { display: block; font-size: .85rem; font-weight: 500; margin-top: 8px; line-height: 1.4; }
+    .student-card { width: min(100%, 760px); margin: 0 auto; padding: clamp(22px, 5vw, 38px); }
+    .back-button { background: transparent; border: 0; color: #155e91; font-weight: 800; padding: 10px 0; margin-bottom: 16px; }
+    .student-card h1 { font-size: clamp(2rem, 6vw, 2.8rem); line-height: 1.15; }
+    .student-subtitle { color: #526d7d; }
+    .step-label { display: inline-block; background: #e9f7fc; border-radius: 99px; padding: 8px 14px; font-weight: 800; color: #155e91; margin: 8px 0 22px; }
+    .field { margin-bottom: 23px; }
+    .field label { display: block; font-weight: 800; line-height: 1.4; margin-bottom: 10px; }
+    .field input, .field textarea, .gap-select { width: 100%; min-height: 54px; border: 2px solid #a8d4e5; border-radius: 14px; padding: 12px 15px; background: #f7fcff; color: #17354b; }
+    .field textarea { min-height: 190px; resize: vertical; line-height: 1.6; }
+    .primary { border: 0; background: #ffcf45; color: #263640; border-radius: 16px; padding: 17px 24px; font-weight: 800; min-height: 58px; }
+    .primary:hover:not(:disabled) { background: #ffdb70; }
+    .submit-button { width: 100%; margin-top: 8px; }
+    .form-error { color: #a33a2d; font-weight: 700; margin: 0 0 18px; }
+    .success { background: #e2f8e8; color: #176b3f; border-radius: 16px; padding: 20px; font-weight: 800; }
+    .hint { font-size: .9rem; color: #526d7d; }
+    .section-block { background: #f0faff; border: 1px solid #b9dfef; border-radius: 20px; padding: clamp(17px, 4vw, 25px); margin: 22px 0; }
+    .section-block h2 { font-size: 1.35rem; margin-bottom: 8px; }
+    .question { border-top: 1px solid #c9e8f4; padding-top: 18px; margin-top: 18px; }
+    .question h3 { font-size: 1.05rem; margin-bottom: 12px; }
+    .choice { display: flex; align-items: center; gap: 12px; background: white; border: 2px solid #c9e8f4; border-radius: 14px; padding: 13px; margin: 9px 0; cursor: pointer; min-height: 54px; }
+    .choice:has(input:checked) { border-color: #168cba; background: #e4f7ff; }
+    .choice input { width: 20px; height: 20px; flex: none; accent-color: #147ba3; }
+    .recipe { line-height: 2.4; font-size: 1.08rem; }
+    .gap-select { display: inline-block; width: auto; min-width: 120px; max-width: 100%; margin: 3px 5px; vertical-align: middle; font-weight: 700; }
+    .teacher-page { min-height: 100vh; background: #0b1726; color: #effaff; padding: clamp(24px, 4vw, 64px); }
+    .teacher-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+    .teacher-page .eyebrow { color: #52e8d1; }
+    .teacher-page h1 { font-size: clamp(2.6rem, 5vw, 5rem); line-height: 1.04; letter-spacing: -.05em; margin: 14px 0; }
+    .teacher-page p { font-size: 1.2rem; color: #bad1dc; }
+    .teacher-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-end; }
+    .teacher-button { background: #152b3d; border: 2px solid #3a6372; color: #f1fbff; border-radius: 14px; padding: 14px 19px; font-size: 1.05rem; font-weight: 800; min-height: 54px; }
+    .teacher-button:hover { border-color: #52e8d1; }
+    .teacher-button.accent, .teacher-button[aria-selected="true"] { background: #52e8d1; border-color: #52e8d1; color: #082531; }
+    .teacher-note { border-left: 4px solid #52e8d1; padding: 14px 20px; background: #132a39; border-radius: 0 14px 14px 0; max-width: 1100px; margin: 20px 0; }
+    .teacher-note p { font-size: 1rem; margin: 0; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 12px; margin: 28px 0; }
+    .teacher-page h2 { font-size: clamp(1.6rem, 3vw, 2.3rem); }
+    .teacher-layout { display: grid; grid-template-columns: minmax(260px, .85fr) minmax(320px, 1.4fr); gap: 22px; align-items: start; }
+    .display-card, .feed-card, .student-tile, .empty { background: #152b3d; border: 1px solid #34596a; border-radius: 22px; padding: clamp(20px, 3vw, 30px); }
+    .food-art { font-size: clamp(6rem, 16vw, 11rem); line-height: 1.2; text-align: center; background: #274538; border-radius: 20px; padding: 15px; margin: 18px 0; }
+    .qr-placeholder { display: inline-grid; place-items: center; width: 120px; height: 120px; background: white; color: #102338; border-radius: 14px; font-size: 4.5rem; margin: 10px 0; }
+    .teacher-page .placeholder-caption { font-size: .9rem; }
+    .feed-list { display: grid; gap: 14px; max-height: 65vh; overflow-y: auto; }
+    .feed-entry { background: #203c50; border-left: 4px solid #ffcf45; padding: 18px; border-radius: 12px; overflow-wrap: anywhere; }
+    .feed-entry strong { font-size: 1.25rem; }
+    .feed-entry p { margin: 8px 0 0; }
+    .summary { display: inline-flex; align-items: baseline; gap: 14px; background: #142e40; border: 1px solid #315568; border-radius: 20px; padding: 18px 26px; margin: 8px 0 25px; }
+    .summary strong { color: #52e8d1; font-size: 3rem; }
+    .summary span { font-size: 1.2rem; }
+    .student-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
+    .student-tile { display: block; width: 100%; text-align: left; color: #fff; }
+    .student-tile:hover { border-color: #52e8d1; background: #1a374b; }
+    .student-tile h3 { font-size: 1.5rem; overflow-wrap: anywhere; margin: 0 0 10px; }
+    .student-tile p { margin: 0; }
+    .status { color: #52e8d1; font-weight: 800; }
+    .empty p { margin: 0; }
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(3,10,18,.85); display: grid; place-items: center; padding: 18px; z-index: 10; }
+    .modal { width: min(100%, 750px); max-height: 90vh; overflow-y: auto; background: #172e40; color: #fff; border: 2px solid #52e8d1; border-radius: 24px; padding: clamp(22px, 4vw, 36px); }
+    .modal-head { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; }
+    .modal h2 { font-size: 2rem; overflow-wrap: anywhere; }
+    .modal h3 { font-size: 1.25rem; color: #52e8d1; margin: 22px 0 8px; }
+    .modal p { font-size: 1.1rem; overflow-wrap: anywhere; white-space: pre-wrap; margin-bottom: 0; }
+    .modal-close { background: transparent; color: white; border: 1px solid #83a4b4; border-radius: 10px; padding: 8px 13px; font-size: 1.25rem; }
+    @media (max-width: 700px) {
+      .role-grid, .teacher-layout { grid-template-columns: 1fr; }
+      .teacher-header { flex-direction: column; }
+      .teacher-actions { justify-content: flex-start; }
+      .gap-select { min-width: 108px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    const h = React.createElement;
+    const { useState, useEffect } = React;
+    const SESSION_KEY = "procedure-lab-student-session-v2";
+    
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx8NND8smNfYOzwU-sWvHWZsNciWyLacBGvFsZ3QmyfXpGp35GdUx9XrbfoAC66Kw/exec"; 
+
+    const WORDS = ["First", "pour", "stir", "Finally"];
+    const QUIZ = [
+      { question: "What is the main ingredient for making iced tea?", choices: ["Tea", "Rice", "Flour"], correct: "Tea" },
+      { question: "What makes the tea cold?", choices: ["Ice cubes", "Hot oil", "Salt"], correct: "Ice cubes" }
+    ];
+
+    function safeSession() {
+      try {
+        const value = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+        return value && typeof value === "object" ? value : null;
+      } catch (_) { return null; }
+    }
+
+    async function submitToSheets(stage, session, values) {
+      const formData = new FormData();
+      formData.append('stage', stage);
+      formData.append('id', session.id);
+      formData.append('name', session.name);
+      formData.append('guess', values.guess || "");
+      formData.append('taste', values.taste || "");
+      formData.append('score', values.score || 0);
+      formData.append('quiz', values.quiz ? values.quiz.join(" · ") : "");
+      formData.append('gaps', values.gaps ? values.gaps.join(" · ") : "");
+      formData.append('procedure', values.procedure || "");
+
+      try {
+        await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: formData,
+          mode: 'no-cors' 
+        });
+        return true; 
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function DetailModal({ student, onClose }) {
+      useEffect(() => {
+        if (!student) return;
+        const onKey = event => { if (event.key === "Escape") onClose(); };
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+      }, [student, onClose]);
+
+      if (!student) return null;
+      
+      const gapsStr = student.gaps || "—";
+      const quizStr = student.quiz || "—";
+
+      return h("div", { className: "modal-backdrop", onMouseDown: event => { if (event.target === event.currentTarget) onClose(); } },
+        h("section", { className: "modal", role: "dialog", "aria-modal": "true", "aria-labelledby": "modal-title" },
+          h("div", { className: "modal-head" },
+            h("div", null, h("p", { className: "eyebrow" }, "Hasil Kegiatan Inti"), h("h2", { id: "modal-title" }, student.name || "Tanpa nama")),
+            h("button", { className: "modal-close", type: "button", onClick: onClose, autoFocus: true, "aria-label": "Tutup detail" }, "✕")
+          ),
+          h("h3", null, "Skor kuis"),
+          h("p", null, String(Number(student.score) || 0), " / 2 benar"),
+          h("h3", null, "Jawaban pilihan ganda"),
+          h("p", null, quizStr),
+          h("h3", null, "Jawaban teks rumpang"),
+          h("p", null, gapsStr),
+          h("h3", null, "Teks prosedur kelompok"),
+          h("p", null, student.procedure || "—")
+        )
+      );
+    }
+
+    function StudentView({ onBack }) {
+      const [session, setSession] = useState(safeSession);
+      const [name, setName] = useState(() => safeSession()?.name || "");
+      const [step, setStep] = useState(() => {
+        const current = safeSession();
+        return current?.step === "inti" || current?.step === "done" ? current.step : current?.name ? "apersepsi" : "name";
+      });
+      const [guess, setGuess] = useState("");
+      const [taste, setTaste] = useState("");
+      const [quiz, setQuiz] = useState(["", ""]);
+      const [gaps, setGaps] = useState(["", "", "", ""]);
+      const [procedure, setProcedure] = useState("");
+      const [error, setError] = useState("");
+      const [busy, setBusy] = useState(false);
+
+      function saveSession(next) {
+        try { localStorage.setItem(SESSION_KEY, JSON.stringify(next)); } catch (_) {}
+        setSession(next);
+      }
+
+      function enter(event) {
+        event.preventDefault();
+        if (!name.trim()) { setError("Tulis namamu terlebih dahulu."); return; }
+        const next = { id: Date.now() + "-" + Math.random().toString(36).slice(2, 9), name: name.trim(), step: "apersepsi" };
+        saveSession(next);
+        setError("");
+        setStep("apersepsi");
+      }
+
+      async function submitApersepsi(event) {
+        event.preventDefault();
+        if (busy || !session) return;
+        if (!guess.trim() || !taste.trim()) { setError("Isi tebakan makanan dan deskripsi rasanya."); return; }
+        setBusy(true); setError("");
+
+        const values = { guess: guess.trim(), taste: taste.trim() };
+        const success = await submitToSheets("apersepsi", session, values);
+        
+        if (!success) {
+          setError("Gagal mengirim data. Pastikan koneksi internet stabil dan coba lagi.");
+          setBusy(false); return;
+        }
+
+        saveSession({ ...session, step: "inti" });
+        setStep("inti");
+        setBusy(false);
+      }
+
+      async function submitInti(event) {
+        event.preventDefault();
+        if (busy || !session) return;
+        if (quiz.some(value => !value) || gaps.some(value => !value) || !procedure.trim()) {
+          setError("Jawab kedua soal, isi semua rumpang, dan tulis teks prosedur kelompok.");
+          return;
+        }
+        setBusy(true); setError("");
+
+        const score = quiz.reduce((total, answer, i) => total + Number(answer === QUIZ[i].correct), 0);
+        const values = { quiz: [...quiz], gaps: [...gaps], procedure: procedure.trim(), score };
+        
+        const success = await submitToSheets("inti", session, values);
+
+        if (!success) {
+          setError("Gagal mengirim tugas. Coba lagi.");
+          setBusy(false); return;
+        }
+
+        saveSession({ ...session, step: "done" });
+        setStep("done");
+        setBusy(false);
+      }
+
+      function gapSelect(index) {
+        return h("select", {
+          id: "gap-" + index, className: "gap-select", required: true,
+          value: gaps[index], onChange: event => setGaps(prev => prev.map((val, i) => i === index ? event.target.value : val))
+        },
+          h("option", { value: "" }, "Pilih kata"),
+          WORDS.map(word => h("option", { key: word, value: word }, word))
+        );
+      }
+
+      return h("main", { className: "student-page" },
+        h("section", { className: "student-card" },
+          h("button", { className: "back-button", type: "button", onClick: onBack }, "← Pilih mode"),
+          h("p", { className: "eyebrow" }, "Procedure Lab · English Grade 7"),
+          h("h1", null, step === "name" ? "Let's Learn Procedure Text!" : step === "apersepsi" ? "Apersepsi" : step === "inti" ? "Kegiatan Inti" : "Hebat, tugas selesai!"),
+          h("p", { className: "student-subtitle" },
+            step === "name" ? "Masukkan namamu untuk memulai." :
+            step === "apersepsi" ? "Perhatikan makanan di layar depan, lalu tulis tebakanmu." :
+            step === "inti" ? "Kerjakan kuis, lengkapi teks, dan buat prosedur bersama kelompokmu." :
+            "Terima kasih sudah menyelesaikan seluruh kegiatan."
+          ),
+          step !== "name" && h("span", { className: "step-label" }, step === "apersepsi" ? "Langkah 1 dari 2" : step === "inti" ? "Langkah 2 dari 2" : "Selesai"),
+          
+          step === "name" && h("form", { onSubmit: enter },
+            h("div", { className: "field" }, h("label", { htmlFor: "student-name" }, "Nama Siswa"), h("input", { id: "student-name", type: "text", maxLength: 60, autoComplete: "name", value: name, onChange: e => setName(e.target.value), placeholder: "Tulis namamu" })),
+            error && h("p", { className: "form-error", role: "alert" }, error),
+            h("button", { className: "primary submit-button", type: "submit" }, "Mulai Apersepsi →")
+          ),
+          step === "apersepsi" && h("form", { onSubmit: submitApersepsi },
+            h("p", { className: "hint" }, "Siswa: ", session?.name || name),
+            h("div", { className: "field" }, h("label", { htmlFor: "food-guess" }, "Tebak nama makanan di layar depan"), h("input", { id: "food-guess", type: "text", maxLength: 120, value: guess, onChange: e => setGuess(e.target.value), placeholder: "Menurutku makanan itu..." })),
+            h("div", { className: "field" }, h("label", { htmlFor: "taste-description" }, "Deskripsikan rasanya"), h("input", { id: "taste-description", type: "text", maxLength: 250, value: taste, onChange: e => setTaste(e.target.value), placeholder: "Rasanya..." })),
+            error && h("p", { className: "form-error", role: "alert" }, error),
+            h("button", { className: "primary submit-button", type: "submit", disabled: busy }, busy ? "Menyimpan..." : "Kirim & Lanjut ke Kegiatan Inti →")
+          ),
+          step === "inti" && h("form", { onSubmit: submitInti },
+            h("section", { className: "section-block" },
+              h("h2", null, "Bagian A · Kuis Ingredients"),
+              h("p", null, "Pilih satu jawaban untuk setiap soal."),
+              QUIZ.map((item, index) => h("div", { className: "question", key: index },
+                h("h3", null, (index + 1) + ". " + item.question),
+                item.choices.map(choice => h("label", { className: "choice", key: choice },
+                  h("input", { type: "radio", name: "quiz-" + index, value: choice, checked: quiz[index] === choice, onChange: () => setQuiz(prev => prev.map((val, i) => i === index ? choice : val)) }),
+                  h("span", null, choice)
+                ))
+              ))
+            ),
+            h("section", { className: "section-block" },
+              h("h2", null, "Bagian B · Lengkapi Teks Rumpang"),
+              h("p", null, "Ketuk setiap dropdown untuk memilih kata yang tepat."),
+              h("p", { className: "recipe" }, gapSelect(0), ", put a tea bag and sugar into a glass. Next, ", gapSelect(1), " hot water into the glass. Then, ", gapSelect(2), " the tea until the sugar dissolves. Add ice cubes. ", gapSelect(3), ", your iced tea is ready to drink.")
+            ),
+            h("section", { className: "section-block" },
+              h("h2", null, "Bagian C · Tugas Kelompok"),
+              h("div", { className: "field" }, h("label", { htmlFor: "group-procedure" }, "Bekerjalah dengan teman kelompokmu. Ketik teks prosedur cara membuat makanan kesukaan kalian di sini!"), h("textarea", { id: "group-procedure", maxLength: 4000, value: procedure, onChange: e => setProcedure(e.target.value), placeholder: "Title: How to make...\nIngredients: ...\nSteps: First, ..." }))
+            ),
+            error && h("p", { className: "form-error", role: "alert" }, error),
+            h("button", { className: "primary submit-button", type: "submit", disabled: busy }, busy ? "Menyimpan..." : "Submit Semua Jawaban")
+          ),
+          step === "done" && h("div", { className: "success", role: "status" }, "✓ Semua jawaban berhasil dikirim ke guru.")
+        )
+      );
+    }
+
+    function TeacherView({ onBack }) {
+      const [tab, setTab] = useState("apersepsi");
+      const [apersepsi, setApersepsi] = useState([]);
+      const [inti, setInti] = useState([]);
+      const [selected, setSelected] = useState(null);
+      const [loading, setLoading] = useState(false);
+
+      async function fetchData() {
+        setLoading(true);
+        try {
+          const res = await fetch(SCRIPT_URL);
+          const data = await res.json();
+          setApersepsi(data.filter(d => d.stage === "apersepsi").reverse());
+          setInti(data.filter(d => d.stage === "inti").reverse());
+        } catch (err) {
+          console.error("Gagal menarik data", err);
+        }
+        setLoading(false);
+      }
+
+      useEffect(() => {
+        fetchData();
+        const timer = setInterval(fetchData, 5000); 
+        return () => clearInterval(timer);
+      }, []);
+
+      return h("main", { className: "teacher-page" },
+        h("header", { className: "teacher-header" },
+          h("div", null,
+            h("p", { className: "eyebrow" }, "Procedure Lab · Teacher View"),
+            h("h1", null, tab === "apersepsi" ? "Apersepsi" : "Leaderboard Inti"),
+            h("p", null, tab === "apersepsi" ? "Ajak siswa menebak makanan dan mendeskripsikan rasanya." : "Lihat siswa yang sudah menyelesaikan Kegiatan Inti.")
+          ),
+          h("div", { className: "teacher-actions" },
+            h("button", { className: "teacher-button", type: "button", onClick: onBack }, "← Pilih mode"),
+            h("button", { className: "teacher-button accent", type: "button", onClick: fetchData }, loading ? "Sedang sync..." : "↻ Refresh Live")
+          )
+        ),
+        h("nav", { className: "tabs" },
+          h("button", { className: "teacher-button", type: "button", "aria-selected": tab === "apersepsi", onClick: () => setTab("apersepsi") }, "Apersepsi"),
+          h("button", { className: "teacher-button", type: "button", "aria-selected": tab === "inti", onClick: () => setTab("inti") }, "Leaderboard Inti")
+        ),
+        h("aside", { className: "teacher-note" },
+          h("p", null, "Sekarang semua data terhubung langsung ke Google Sheets secara real-time! Anda juga bisa membuka file Sheets tersebut untuk melihat rekapan lengkap.")
+        ),
+        
+        tab === "apersepsi" ? h("div", { className: "teacher-layout" },
+          h("section", { className: "display-card" },
+            h("h2", null, "Tebak makanan ini!"),
+            h("div", { className: "food-art", role: "img" }, "🍛"),
+            h("p", null, "Apa nama makanan ini? Bagaimana rasanya?"),
+            h("div", { className: "qr-placeholder", role: "img" }, "▦"),
+            h("p", { className: "placeholder-caption" }, "Ganti ▦ dengan QR Code dari URL hosting Anda agar mudah di-scan siswa.")
+          ),
+          h("section", { className: "feed-card" },
+            h("h2", null, "Live Feed · ", apersepsi.length, " jawaban"),
+            apersepsi.length ? h("div", { className: "feed-list", "aria-live": "polite" },
+              apersepsi.map((entry, i) => h("article", { className: "feed-entry", key: i },
+                h("strong", null, entry.name),
+                h("p", null, "🍽️ ", entry.guess),
+                h("p", null, "💬 ", entry.taste)
+              ))
+            ) : h("div", { className: "empty" }, h("p", null, "Belum ada tebakan yang masuk ke Google Sheets."))
+          )
+        ) : h("section", null,
+          h("div", { className: "summary" }, h("strong", null, inti.length), h("span", null, "siswa selesai")),
+          h("h2", null, "Kiriman Kegiatan Inti"),
+          inti.length ? h("div", { className: "student-grid" },
+            inti.map((student, i) => h("button", { className: "student-tile", type: "button", key: i, onClick: () => setSelected(student) },
+              h("h3", null, student.name),
+              h("p", null, h("span", { className: "status" }, "● Selesai · Skor ", String(Number(student.score) || 0), "/2")),
+              h("p", null, "Ketuk untuk melihat jawaban →")
+            ))
+          ) : h("div", { className: "empty" }, h("p", null, "Belum ada siswa yang menyelesaikan Kegiatan Inti."))
+        ),
+        h(DetailModal, { student: selected, onClose: () => setSelected(null) })
+      );
+    }
+
+    function App() {
+      const [mode, setMode] = useState("home");
+      if (mode === "student") return h(StudentView, { onBack: () => setMode("home") });
+      if (mode === "teacher") return h(TeacherView, { onBack: () => setMode("home") });
+      return h("main", { className: "home" },
+        h("section", { className: "home-card" },
+          h("div", { style: { fontSize: "4rem" }, "aria-hidden": "true" }, "🍋 🫖"),
+          h("p", { className: "eyebrow" }, "Procedure Lab · English Grade 7"),
+          h("h1", null, "Let's Learn Procedure Text!"),
+          h("p", { className: "home-intro" }, "Mulai dari Apersepsi, lalu lanjutkan ke Kegiatan Inti."),
+          h("div", { className: "role-grid" },
+            h("button", { className: "role-button", type: "button", onClick: () => setMode("student") }, h("span", { "aria-hidden": "true" }, "✍️"), "Student View", h("small", null, "Tebak makanan, kerjakan kuis, dan tulis teks prosedur.")),
+            h("button", { className: "role-button", type: "button", onClick: () => setMode("teacher") }, h("span", { "aria-hidden": "true" }, "📺"), "Teacher View", h("small", null, "Tampilkan Apersepsi dan pantau hasil Kegiatan Inti."))
+          )
+        )
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(h(App));
+  </script>
+</body>
+</html>
